@@ -36,6 +36,7 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/titel"
         android:background="#00ffffff"
+        android:contentDescription="Contact Picker"
         android:src="@drawable/ic_contacts_black_48dp" />
 
     <EditText
@@ -68,7 +69,9 @@
         android:layout_above="@+id/dateButton"
         android:layout_alignParentEnd="true"
         android:background="#00ffffff"
-        android:src="@drawable/ic_schedule_black_48dp" />
+        android:contentDescription="Time Picker"
+        android:src="@drawable/ic_schedule_black_48dp"
+        android:onClick="onClickTimePicker"/>
 
     <EditText
         android:id="@+id/date"
@@ -88,6 +91,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:background="#00ffffff"
-        android:src="@drawable/ic_today_black_48dp" />
+        android:contentDescription="Date Picker"
+        android:src="@drawable/ic_today_black_48dp"
+        android:onClick="onClickDatePicker"/>
 
 </RelativeLayout>
