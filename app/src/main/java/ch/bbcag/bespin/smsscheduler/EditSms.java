@@ -3,6 +3,7 @@ package ch.bbcag.bespin.smsscheduler;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,15 +14,11 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,10 +29,9 @@ public class EditSms extends AppCompatActivity {
     private static final int PICK_CONTACT = 1;
 
     // UI References
-    private EditText date;
-    private EditText time;
     private EditText phoneNr;
-    private ImageButton contactButton;
+    private EditText time;
+    private EditText date;
 
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
@@ -51,36 +47,22 @@ public class EditSms extends AppCompatActivity {
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN);
 
         findViewsById();
-        setContactButton();
-        setTimeField();
-        setDateField();
+        timeDialog();
+        dateDialog();
     }
 
     private void findViewsById() {
-        // get contact field and button
         phoneNr = (EditText) findViewById(R.id.phoneNr);
-        contactButton = (ImageButton) findViewById(R.id.contactButton);
+        assert phoneNr != null;
+        phoneNr.setInputType(InputType.TYPE_NULL);
 
-        // get time field
         time = (EditText) findViewById(R.id.time);
         assert time != null;
         time.setInputType(InputType.TYPE_NULL);
 
-        // get date field
         date = (EditText) findViewById(R.id.date);
         assert date != null;
         date.setInputType(InputType.TYPE_NULL);
-    }
-
-
-    private void setContactButton() {
-        contactButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT);
-            }
-        });
     }
 
     @Override
@@ -111,14 +93,7 @@ public class EditSms extends AppCompatActivity {
         }
     }
 
-    private void setTimeField() {
-        time.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                timePickerDialog.show();
-            }
-        });
-
+    private void timeDialog() {
         Calendar calendar = Calendar.getInstance();
         timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
@@ -131,14 +106,7 @@ public class EditSms extends AppCompatActivity {
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
     }
 
-    private void setDateField() {
-        date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                datePickerDialog.show();
-            }
-        });
-
+    private void dateDialog() {
         Calendar calendar = Calendar.getInstance();
         datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -167,23 +135,20 @@ public class EditSms extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.save:
-//                saveSms();
+                // TODO: saveSMS method
                 return true;
             case R.id.delete:
-//                deleteSms();
+                // TODO: deleteSMS method
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-//    public void saveSms() {
-//
-//    }
-//
-//    public void deleteSms() {
-//
-//    }
+    public void onClickContactButton(View view) {
+        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(intent, PICK_CONTACT);
+    }
 
     public void onClickTimeButton(View view) {
         timePickerDialog.show();
@@ -191,9 +156,5 @@ public class EditSms extends AppCompatActivity {
 
     public void onClickDateButton(View view) {
         datePickerDialog.show();
-    }
-
-    public void onClickContactButton(View view) {
-
     }
 }
