@@ -43,7 +43,7 @@
         android:id="@+id/smsText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/timeButton"
+        android:layout_above="@+id/timePicker"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/phoneNr"
@@ -55,44 +55,44 @@
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/timeButton"
+        android:layout_alignBottom="@+id/timePicker"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/timeButton"
+        android:layout_toStartOf="@+id/timePicker"
         android:ems="10"
         android:hint="Time"
         android:inputType="time" />
 
     <ImageButton
-        android:id="@+id/timeButton"
+        android:id="@+id/timePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/dateButton"
+        android:layout_above="@+id/datePicker"
         android:layout_alignParentEnd="true"
         android:background="#00ffffff"
         android:contentDescription="Time Picker"
-        android:src="@drawable/ic_schedule_black_48dp"
-        android:onClick="onClickTimePicker"/>
+        android:onClick="onClickTimeButton"
+        android:src="@drawable/ic_schedule_black_48dp" />
 
     <EditText
         android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/dateButton"
+        android:layout_alignBottom="@+id/datePicker"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/dateButton"
+        android:layout_toStartOf="@+id/datePicker"
         android:ems="10"
         android:hint="Date"
         android:inputType="date" />
 
     <ImageButton
-        android:id="@+id/dateButton"
+        android:id="@+id/datePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:background="#00ffffff"
         android:contentDescription="Date Picker"
-        android:src="@drawable/ic_today_black_48dp"
-        android:onClick="onClickDatePicker"/>
+        android:onClick="onClickDateButton"
+        android:src="@drawable/ic_today_black_48dp" />
 
 </RelativeLayout>
