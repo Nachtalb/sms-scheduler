@@ -1,17 +1,27 @@
 package ch.bbcag.bespin.smsscheduler;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-
+import android.provider.ContactsContract;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,9 +29,13 @@ import java.util.Locale;
 
 public class EditSms extends AppCompatActivity {
 
+    private static final int PICK_CONTACT = 1;
+
     // UI References
     private EditText date;
     private EditText time;
+    private EditText phoneNr;
+    private ImageButton contactButton;
 
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
@@ -37,22 +51,64 @@ public class EditSms extends AppCompatActivity {
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN);
 
         findViewsById();
+        setContactButton();
         setTimeField();
         setDateField();
     }
 
     private void findViewsById() {
+        // get contact field and button
+        phoneNr = (EditText) findViewById(R.id.phoneNr);
+        contactButton = (ImageButton) findViewById(R.id.contactButton);
+
         // get time field
         time = (EditText) findViewById(R.id.time);
         assert time != null;
         time.setInputType(InputType.TYPE_NULL);
-        time.requestFocus();
 
         // get date field
         date = (EditText) findViewById(R.id.date);
         assert date != null;
         date.setInputType(InputType.TYPE_NULL);
-        date.requestFocus();
+    }
+
+
+    private void setContactButton() {
+        contactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                startActivityForResult(intent, PICK_CONTACT);
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+
+        switch (reqCode) {
+            case (PICK_CONTACT):
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri contactData = data.getData();
+                    Cursor query = getContentResolver().query(contactData, null, null, null, null);
+                    assert query != null;
+                    if (query.moveToFirst()) {
+                        String id = query.getString(query.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+                        String hasPhone = query.getString(query.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                        if (hasPhone.equalsIgnoreCase("1")) {
+                            Cursor phoneQuery = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
+                            assert phoneQuery != null;
+                            phoneQuery.moveToFirst();
+                            String phoneNrString = phoneQuery.getString(phoneQuery.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                            Toast.makeText(getApplicationContext(), phoneNrString, Toast.LENGTH_SHORT).show();
+                            phoneNr.setText(phoneNrString);
+                            phoneQuery.close();
+                        }
+                    }
+                    query.close();
+                }
+        }
     }
 
     private void setTimeField() {
@@ -135,5 +191,9 @@ public class EditSms extends AppCompatActivity {
 
     public void onClickDateButton(View view) {
         datePickerDialog.show();
+    }
+
+    public void onClickContactButton(View view) {
+
     }
 }

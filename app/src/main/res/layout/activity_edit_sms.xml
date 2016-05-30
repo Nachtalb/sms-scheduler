@@ -16,7 +16,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:hint="Titel" />
+        android:hint="Titel"
+        android:onClick="onClickContactButton" />
 
     <EditText
         android:id="@+id/phoneNr"
