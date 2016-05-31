@@ -20,4 +20,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNr, null, smsText, null, null);
     }
+
+
 }

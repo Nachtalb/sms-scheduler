@@ -9,10 +9,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,12 +22,16 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     private HashMap<String, ScheduledSms> scheduledSms = new HashMap<>();
-    private static final String TAG = "ApplicationStart";
-    private static final String PENDINGINTENTID = "pendingIntentId";
-    final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
+    private ArrayList<RowItem> rowItems = new ArrayList<>();
+
     public SharedPreferences prefs;
 
-    ArrayList<RowItem> rowItems = new ArrayList<>();
+    private static final String TAG = "ApplicationStart";
+    private static final String PENDINGINTENTID = "pendingIntentId";
+    private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
+    static final int ADD_REQUEST = 0;
+    static final int UPDATE_REQUEST = 1;
+    static final int DELETE_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         createList();
-//        addTestSms();
+        if (scheduledSms.isEmpty())
+            addTestSms();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -48,30 +53,66 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        createList();
-    }
-
     private void newEditSmsView() {
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
-        intent.putExtra("timestamp", 1485932426439L);
-        startActivity(intent);
+        startActivityForResult(intent, ADD_REQUEST);
     }
 
     private void updateEditSmsView(String UUID) {
         ScheduledSms sms = scheduledSms.get(UUID);
 
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
+        intent.putExtra("title", sms.title);
+        intent.putExtra("phoneNr", sms.phoneNr);
+        intent.putExtra("smsText", sms.smsText);
+        intent.putExtra("timestamp", sms.timestamp);
         intent.putExtra("UUID", sms.UUID);
 
-        startActivity(intent);
+        startActivityForResult(intent, UPDATE_REQUEST);
     }
 
-    private void updateSms(String UUID) {
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
 
+        String title;
+        String phoneNr;
+        String smsText;
+        String UUID;
+        long timestamp;
+        switch (reqCode) {
+            case ADD_REQUEST:
+                title = data.getStringExtra("title");
+                phoneNr = data.getStringExtra("phoneNr");
+                smsText = data.getStringExtra("smsText");
+                timestamp = data.getLongExtra("timestamp", 0);
+                if (timestamp == 0) {
+                    Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                } else {
+                    addSms(title, phoneNr, smsText, timestamp);
+                }
+                break;
+            case UPDATE_REQUEST:
+                title = data.getStringExtra("title");
+                phoneNr = data.getStringExtra("phoneNr");
+                smsText = data.getStringExtra("smsText");
+                timestamp = data.getLongExtra("timestamp", 0);
+                UUID = data.getStringExtra("UUID");
+                if (timestamp == 0) {
+                    Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                } else {
+                    updateSms(title, phoneNr, smsText, timestamp, UUID);
+                }
+                break;
+            case DELETE_REQUEST:
+                cancelSms(data.getStringExtra("UUID"));
+        }
+    }
+
+    private void updateSms(String title, String phoneNr, String smsText, long timestamp, String uuid) {
+        cancelSms(uuid);
+
+        addSms(title, phoneNr, smsText, timestamp);
     }
 
     public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
@@ -94,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         editor.apply();
+        createList();
     }
 
     private PendingIntent addPendingSMS(ScheduledSms sms, int pendingIntentId) {
@@ -137,11 +179,14 @@ public class MainActivity extends AppCompatActivity {
 
         AdapterView.OnItemClickListener mListClickedHandler = new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
+/*
                 Intent intent = new Intent(getApplicationContext(), EditSms.class);
                 String selected = parent.getItemAtPosition(position).toString();
 
                 intent.putExtra("name", selected);
                 startActivity(intent);
+*/
+                updateEditSmsView(rowItems.get(position).UUID);
             }
         };
 
@@ -162,8 +207,6 @@ public class MainActivity extends AppCompatActivity {
 
             smsList.setOnItemClickListener(mListClickedHandler);
         } else {
-            Log.i(TAG, "here");
-
             RowItem item = new RowItem("No scheduled items yet", "", "", 0, UUID.randomUUID().toString());
             rowItems.add(item);
         }

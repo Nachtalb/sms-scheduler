@@ -22,128 +22,134 @@ import android.widget.Toast;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.Objects;
+import java.util.UUID;
 
 public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
     private static final int PICK_CONTACT = 1;
 
-    // UI References
-    private EditText title;
-    private EditText phoneNr;
-    private EditText smsText;
-    private EditText time;
-    private EditText date;
+    private EditText titleEditText;
+    private EditText phoneNrEditText;
+    private EditText smsTextEditText;
+    private EditText timeEditText;
+    private EditText dateEditText;
 
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
     private SimpleDateFormat dateFormatter;
     private SimpleDateFormat timeFormatter;
+
     private MainActivity mainActivity;
 
     private Calendar newDate;
+
+    private Boolean Update = false;
+
+    private static final String TAG = "EditSMS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_sms);
         findViewsById();
+        Intent i = getIntent();
+        if (i.getExtras().containsKey("UUID")) {
+            Update = true;
+        }
+
         setOnClickListener();
 
         newDate = Calendar.getInstance();
         timeFormatter = new SimpleDateFormat("HH:mm");
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 
-        Intent i = getIntent();
-        if (i != null && i.getLongExtra("timestamp", -1) != -1) {
+        if (i.getExtras().containsKey("timestamp"))
             newDate.setTimeInMillis(i.getLongExtra("timestamp", Calendar.getInstance().getTimeInMillis()));
-            time.setText(timeFormatter.format(newDate.getTime()));
-            date.setText(dateFormatter.format(newDate.getTime()));
-        }
+        else
+            newDate.setTimeInMillis(System.currentTimeMillis());
 
-        Log.v("example", "Timestamp = " + newDate.getTimeInMillis());
+        timeEditText.setText(timeFormatter.format(newDate.getTime()));
+        dateEditText.setText(dateFormatter.format(newDate.getTime()));
 
-        timeDialog();
-        dateDialog();
-    }
+        initTimeDialog();
+        initDateDialog();
 
-    private void findViewsById() {
-        title = (EditText) findViewById(R.id.titel);
-
-        phoneNr = (EditText) findViewById(R.id.phoneNr);
-        assert phoneNr != null;
-        phoneNr.setInputType(InputType.TYPE_NULL);
-
-        smsText = (EditText) findViewById(R.id.smsText);
-
-        time = (EditText) findViewById(R.id.time);
-        assert time != null;
-        time.setInputType(InputType.TYPE_NULL);
-
-        date = (EditText) findViewById(R.id.date);
-        assert date != null;
-        date.setInputType(InputType.TYPE_NULL);
+        setOnClickListener();
     }
 
     private void setOnClickListener() {
-        phoneNr.setOnClickListener(this);
+        phoneNrEditText.setOnClickListener(this);
         findViewById(R.id.contactButton).setOnClickListener(this);
-        time.setOnClickListener(this);
+        timeEditText.setOnClickListener(this);
         findViewById(R.id.timePicker).setOnClickListener(this);
-        date.setOnClickListener(this);
+        dateEditText.setOnClickListener(this);
         findViewById(R.id.datePicker).setOnClickListener(this);
+    }
+
+    private void findViewsById() {
+        titleEditText = (EditText) findViewById(R.id.titel);
+
+        phoneNrEditText = (EditText) findViewById(R.id.phoneNr);
+        assert phoneNrEditText != null;
+        phoneNrEditText.setInputType(InputType.TYPE_NULL);
+
+        smsTextEditText = (EditText) findViewById(R.id.smsText);
+
+        timeEditText = (EditText) findViewById(R.id.time);
+        assert timeEditText != null;
+        timeEditText.setInputType(InputType.TYPE_NULL);
+
+        dateEditText = (EditText) findViewById(R.id.date);
+        assert dateEditText != null;
+        dateEditText.setInputType(InputType.TYPE_NULL);
     }
 
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        switch (reqCode) {
-            case (PICK_CONTACT):
-                if (resultCode == Activity.RESULT_OK) {
-                    Uri contactData = data.getData();
-                    Cursor query = getContentResolver().query(contactData, null, null, null, null);
-                    assert query != null;
-                    if (query.moveToFirst()) {
-                        String id = query.getString(query.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
-                        String hasPhone = query.getString(query.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-                        if (hasPhone.equalsIgnoreCase("1")) {
-                            Cursor phoneQuery = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
-                            assert phoneQuery != null;
-                            phoneQuery.moveToFirst();
-                            String phoneNrString = phoneQuery.getString(phoneQuery.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            Toast.makeText(getApplicationContext(), phoneNrString, Toast.LENGTH_SHORT).show();
-                            phoneNr.setText(phoneNrString);
-                            phoneQuery.close();
-                        }
-                    }
-                    query.close();
+        if (reqCode == PICK_CONTACT && resultCode == Activity.RESULT_OK) {
+            Uri contactData = data.getData();
+            Cursor query = getContentResolver().query(contactData, null, null, null, null);
+            assert query != null;
+            if (query.moveToFirst()) {
+                String id = query.getString(query.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+                String hasPhone = query.getString(query.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                if (hasPhone.equalsIgnoreCase("1")) {
+                    Cursor phoneQuery = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
+                    assert phoneQuery != null;
+                    phoneQuery.moveToFirst();
+                    String phoneNrString = phoneQuery.getString(phoneQuery.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    Toast.makeText(getApplicationContext(), phoneNrString, Toast.LENGTH_SHORT).show();
+                    phoneNrEditText.setText(phoneNrString);
+                    phoneQuery.close();
                 }
+            }
+            query.close();
         }
     }
 
-    private void timeDialog() {
+    private void initTimeDialog() {
         Calendar calendar = newDate;
         timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 newDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 newDate.set(Calendar.MINUTE, minute);
-                time.setText(timeFormatter.format(newDate.getTime()));
+                timeEditText.setText(timeFormatter.format(newDate.getTime()));
                 Log.v("example", "Timestamp = " + newDate.getTimeInMillis());
             }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
     }
 
-
-    private void dateDialog() {
+    private void initDateDialog() {
         Calendar calendar = newDate;
         datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 newDate.set(year, monthOfYear, dayOfMonth);
-                date.setText(dateFormatter.format(newDate.getTime()));
+                dateEditText.setText(dateFormatter.format(newDate.getTime()));
                 Log.v("example", "Timestamp = " + newDate.getTimeInMillis());
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
@@ -167,13 +173,16 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         switch (item.getItemId()) {
             case R.id.save:
                 try {
-                    saveSms();
+                    if (Update)
+                        updateSms();
+                    else
+                        saveSms();
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
                 return true;
             case R.id.delete:
-                deleteSms("");
+                deleteSms();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -181,41 +190,64 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void saveSms() throws ParseException {
-        mainActivity.addSms(title.toString(), phoneNr.toString(), smsText.toString(), newDate.getTimeInMillis());
-        mainActivity.createList();
+
+        String title = titleEditText.getText().toString();
+        String phoneNr = phoneNrEditText.getText().toString();
+        String smsText = smsTextEditText.getText().toString();
+        long timestamp = newDate.getTimeInMillis();
+
+        if (Objects.equals(title, "") || Objects.equals(phoneNr, "") || Objects.equals(smsText, "")) {
+            Toast.makeText(this, "You have to fill all fields.", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("title", title);
+            returnIntent.putExtra("phoneNr", phoneNr);
+            returnIntent.putExtra("smsText", smsText);
+            returnIntent.putExtra("timestamp", timestamp);
+
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
     }
 
-    private void deleteSms(String UUID) {
-        mainActivity.cancelSms(UUID);
+    private void updateSms() throws ParseException {
+
+        String title = titleEditText.getText().toString();
+        String phoneNr = phoneNrEditText.getText().toString();
+        String smsText = smsTextEditText.getText().toString();
+        long timestamp = newDate.getTimeInMillis();
+
+        if (Objects.equals(title, "") || Objects.equals(phoneNr, "") || Objects.equals(smsText, "")) {
+            Toast.makeText(this, "You have to fill all fields.", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("title", title);
+            returnIntent.putExtra("phoneNr", phoneNr);
+            returnIntent.putExtra("smsText", smsText);
+            returnIntent.putExtra("timestamp", timestamp);
+            returnIntent.putExtra("UUID", getIntent().getStringExtra("UUID"));
+
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
     }
 
-/*
-    public void onClickContactButton(View view) {
-        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-        startActivityForResult(intent, PICK_CONTACT);
-    }
-*/
+    private void deleteSms() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("UUID", getIntent().getStringExtra("UUID"));
 
-/*
-    public void onClickTimeButton(View view) {
-        timePickerDialog.show();
+        setResult(Activity.RESULT_OK, returnIntent);
+        finish();
     }
-*/
-
-/*
-    public void onClickDateButton(View view) {
-        datePickerDialog.show();
-    }
-*/
 
     @Override
     public void onClick(View v) {
-        if (v == phoneNr || v == findViewById(R.id.contactButton)) {
+        if (v == phoneNrEditText || v == findViewById(R.id.contactButton)) {
             Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
             startActivityForResult(intent, PICK_CONTACT);
-        } else if (v == time || v == findViewById(R.id.timePicker)) {
+        } else if (v == timeEditText || v == findViewById(R.id.timePicker)) {
             timePickerDialog.show();
-        } else if (v == date || v == findViewById(R.id.datePicker)) {
+        } else if (v == dateEditText || v == findViewById(R.id.datePicker)) {
             datePickerDialog.show();
         }
     }

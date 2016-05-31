@@ -11,11 +11,14 @@ import android.widget.TextView;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class CustomAdapter extends BaseAdapter {
 
     Context context;
     List<RowItem> rowItems;
+
+    private static final String TAG = "CustomAdapter";
 
     CustomAdapter(Context context, List<RowItem> rowItems) {
         this.context = context;
@@ -49,7 +52,7 @@ public class CustomAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
 
-        ViewHolder holder = null;
+        ViewHolder holder;
 
         LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
@@ -87,12 +90,11 @@ public class CustomAdapter extends BaseAdapter {
         // Create an instance of SimpleDateFormat used for formatting
         // the string representation of date (month/day/year)
 
-        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMAN);
         // Using DateFormat format method we can create a string
         // representation of a date with the defined format.
-        String dateString = df.format(date);
 
         // Print what date is today!
-        return dateString;
+        return df.format(date);
     }
 }
