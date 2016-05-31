@@ -1,31 +1,38 @@
 package ch.bbcag.bespin.smsscheduler;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<ScheduledSms> scheduledSms;
+    private HashMap<String, ScheduledSms> scheduledSms = new HashMap<>();
     private static final String TAG = "ApplicationStart";
     final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
+    public SharedPreferences prefs;
 
     ArrayList<RowItem> rowItems = new ArrayList<>();
 
@@ -34,33 +41,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        createList(prefs);
+        createList();
 
-        startIn10Sec();
+        addTestSms();
+
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
     }
 
-    public void startIn10Sec() {
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        long time = System.currentTimeMillis() + 10000;
+    public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
+        ScheduledSms newSms = new ScheduledSms(title, phoneNr, smsText, unixTimestamp, UUID.randomUUID().toString());
 
-        /* Repeating on every 20 minutes interval */
-        PendingIntent pendingIntent;
+        scheduledSms.put(newSms.UUID, newSms);
 
-        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, alarmIntent, 0);
-
-        manager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent);
-    }
-
-
-    public void addSms(ScheduledSms newSms) {
-        if (null == scheduledSms) {
-            scheduledSms = new ArrayList<>();
-        }
-
-        scheduledSms.add(newSms);
+        addPendingSMS(newSms);
 
         //save the task list to preference
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -70,20 +74,40 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        editor.commit();
+        editor.apply();
+
     }
 
-    private void createList(SharedPreferences prefs) {
-        // load tasks from preference
-        try {
-            scheduledSms = (ArrayList<ScheduledSms>) ObjectSerializer.deserialize(prefs.getString(SCHEDULEDSMS, ObjectSerializer.serialize(new ArrayList<ScheduledSms>())));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-//        addTestSms();
+    public PendingIntent addPendingSMS(ScheduledSms sms) {
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
+        long unixTimestamp = sms.timestamp;
+        PendingIntent pendingIntent = sms.getPendingIntent(this);
+
+        manager.setExact(AlarmManager.RTC, unixTimestamp, pendingIntent);
+
+        return pendingIntent;
+    }
+
+    public void cancelSms(String UUID) {
+
+        PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this);
+
+        pendingIntent.cancel();
+
+        scheduledSms.remove(UUID);
+
+        createList();
+    }
+
+    public boolean checkIfHasEntries(){
+        return prefs.getString(SCHEDULEDSMS, null) != null;
+    }
+
+    private void createList() {
         ListView smsList = (ListView) findViewById(R.id.plannedSmsList);
+        smsList.setAdapter(null);
 
         AdapterView.OnItemClickListener mListClickedHandler = new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
@@ -95,19 +119,20 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        if (prefs.getString(SCHEDULEDSMS, null) != null) {
+        if (checkIfHasEntries()) {
             try {
-                scheduledSms = (ArrayList<ScheduledSms>) ObjectSerializer.deserialize(prefs.getString(SCHEDULEDSMS, ObjectSerializer.serialize(new ArrayList<ScheduledSms>())));
+                scheduledSms = (HashMap<String, ScheduledSms>) ObjectSerializer.deserialize(prefs.getString(SCHEDULEDSMS, ObjectSerializer.serialize(new HashMap<String, ScheduledSms>())));
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             if (!scheduledSms.isEmpty()) {
-                for (ScheduledSms sms : scheduledSms) {
-                    RowItem item = new RowItem(sms.title, sms.phoneNr, sms.smsText, sms.timestamp, sms.uniqueId);
+                for (Map.Entry<String, ScheduledSms> sms : scheduledSms.entrySet()) {
+                    RowItem item = new RowItem(sms.getValue().title, sms.getValue().phoneNr, sms.getValue().smsText, sms.getValue().timestamp, sms.getValue().UUID);
                     rowItems.add(item);
                 }
             }
+
 
             smsList.setOnItemClickListener(mListClickedHandler);
         } else {
@@ -123,9 +148,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void addTestSms() {
-        addSms(new ScheduledSms("First Entry", "0111111111", "some Text", 1465732800, UUID.randomUUID().toString()));
-        addSms(new ScheduledSms("Second Entry", "0222222222", "Some other Text", 1469871000, UUID.randomUUID().toString()));
-        addSms(new ScheduledSms("Third Entry", "0333333333", "Something different", 1482537600, UUID.randomUUID().toString()));
-        addSms(new ScheduledSms("Fourth Entry", "0444444444", "Lorem Ipsum", 1483697520, UUID.randomUUID().toString()));
+        addSms("Tobi", "+41793030111", "Tobias isch e Hobbyglobi", System.currentTimeMillis() + 3000);
+        addSms("Roman", "+41796564172", "Roman isch de ruler of his class", System.currentTimeMillis() + 6000);
+        addSms("Hudson", "+41786224306", "Hudson isch het e huet", System.currentTimeMillis() + 9000);
+
+        createList();
     }
 }

@@ -64,13 +64,13 @@ public class CustomAdapter extends BaseAdapter {
             holder.timestamp = (TextView) convertView.findViewById(R.id.timestamp);
             holder.phoneNr = (TextView) convertView.findViewById(R.id.phoneNr);
 
-            holder.title.setText(row_pos.getTitle());
-            holder.phoneNr.setText(row_pos.getPhoneNr());
+            holder.title.setText(row_pos.title);
+            holder.phoneNr.setText(row_pos.phoneNr);
 
-            if (row_pos.getTimestamp() == 0) {
+            if (row_pos.timestamp == 0) {
                 holder.timestamp.setText("");
             } else {
-                String date = dateToString(new Date(row_pos.getTimestamp() * 1000));
+                String date = dateToString(new Date(row_pos.timestamp));
                 holder.timestamp.setText(date);
             }
 
