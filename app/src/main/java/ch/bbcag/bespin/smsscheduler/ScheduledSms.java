@@ -21,7 +21,7 @@ public class ScheduledSms implements Serializable {
         this.UUID = uniqueId;
     }
 
-    public PendingIntent getPendingIntent(Context context){
+    public PendingIntent getPendingIntent(Context context) {
 
         PendingIntent pendingIntent;
 

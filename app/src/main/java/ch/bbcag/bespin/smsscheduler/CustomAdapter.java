@@ -76,6 +76,7 @@ public class CustomAdapter extends BaseAdapter {
 
             convertView.setTag(holder);
         } else {
+            assert convertView != null;
             holder = (ViewHolder) convertView.getTag();
         }
 
