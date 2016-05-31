@@ -1,7 +1,6 @@
 package ch.bbcag.bespin.smsscheduler;
 
 import android.content.BroadcastReceiver;
-
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsManager;
@@ -16,7 +15,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         String smsText = intent.getExtras().getString("smsText");
 
         // For our recurring task, we'll just display a message
-        Toast.makeText(context, title + "is running", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "ScheduleSending SMS: " + title, Toast.LENGTH_SHORT).show();
 
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNr, null, smsText, null, null);

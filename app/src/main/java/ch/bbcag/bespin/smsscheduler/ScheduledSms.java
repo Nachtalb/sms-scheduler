@@ -12,16 +12,18 @@ public class ScheduledSms implements Serializable {
     public String smsText;
     public long timestamp;
     public String UUID;
+    public int pendingIntentId;
 
-    public ScheduledSms(String title, String phoneNr, String smsText, long timestamp, String uniqueId) {
+    public ScheduledSms(String title, String phoneNr, String smsText, long timestamp, String uniqueId, int pendingIntentId) {
         this.title = title;
         this.phoneNr = phoneNr;
         this.smsText = smsText;
         this.timestamp = timestamp;
         this.UUID = uniqueId;
+        this.pendingIntentId = pendingIntentId;
     }
 
-    public PendingIntent getPendingIntent(Context context){
+    public PendingIntent getPendingIntent(Context context, int pendingIntentId) {
 
         PendingIntent pendingIntent;
 
@@ -30,7 +32,7 @@ public class ScheduledSms implements Serializable {
         alarmIntent.putExtra("phoneNr", phoneNr);
         alarmIntent.putExtra("smsText", smsText);
 
-        pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
+        pendingIntent = PendingIntent.getBroadcast(context, pendingIntentId, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         return pendingIntent;
     }
