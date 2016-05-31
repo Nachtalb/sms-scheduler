@@ -37,19 +37,25 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         createList();
-
         addTestSms();
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Create Scheduled SMS", Snackbar.LENGTH_LONG).setAction("New", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        newSms();
+                    }
+                }).show();
             }
         });
+    }
 
+    private void newSms() {
+        Intent intent = new Intent(getApplicationContext(), EditSms.class);
+        startActivity(intent);
     }
 
     public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
@@ -68,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         editor.apply();
-
     }
 
 
