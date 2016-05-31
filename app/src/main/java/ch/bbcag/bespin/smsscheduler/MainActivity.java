@@ -46,14 +46,14 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "Create Scheduled SMS", Snackbar.LENGTH_LONG).setAction("New", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        newSms();
+                        editSmsView();
                     }
                 }).show();
             }
         });
     }
 
-    private void newSms() {
+    private void editSmsView() {
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
         startActivity(intent);
     }
