@@ -18,16 +18,21 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 public class EditSms extends AppCompatActivity {
 
     private static final int PICK_CONTACT = 1;
 
     // UI References
+    private EditText title;
     private EditText phoneNr;
+    private EditText smsText;
     private EditText time;
     private EditText date;
 
@@ -35,14 +40,15 @@ public class EditSms extends AppCompatActivity {
     private TimePickerDialog timePickerDialog;
     private SimpleDateFormat dateFormatter;
     private SimpleDateFormat timeFormatter;
+    private MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_sms);
 
-        timeFormatter = new SimpleDateFormat("HH:mm", Locale.GERMAN);
-        dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN);
+        timeFormatter = new SimpleDateFormat("HH:mm");
+        dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 
         findViewsById();
         timeDialog();
@@ -50,9 +56,13 @@ public class EditSms extends AppCompatActivity {
     }
 
     private void findViewsById() {
+        title = (EditText) findViewById(R.id.titel);
+
         phoneNr = (EditText) findViewById(R.id.phoneNr);
         assert phoneNr != null;
         phoneNr.setInputType(InputType.TYPE_NULL);
+
+        smsText = (EditText) findViewById(R.id.smsText);
 
         time = (EditText) findViewById(R.id.time);
         assert time != null;
@@ -133,14 +143,33 @@ public class EditSms extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.save:
-                // TODO: saveSMS method
+                try {
+                    saveSms();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 return true;
             case R.id.delete:
-                // TODO: deleteSMS method
+                deleteSms("");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void saveSms() throws ParseException {
+        String timeStampString = date.toString() + " " + time.toString();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        Date date = sdf.parse(timeStampString);
+        long timeInMillisSinceEpoch = date.getTime();
+
+        mainActivity.addSms(title.toString(), phoneNr.toString(), smsText.toString(), timeInMillisSinceEpoch);
+        mainActivity.createList();
+    }
+
+    private void deleteSms(String UUID) {
+        mainActivity.cancelSms(UUID);
     }
 
     public void onClickContactButton(View view) {

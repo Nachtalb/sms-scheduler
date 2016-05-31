@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    public PendingIntent addPendingSMS(ScheduledSms sms, int pendingIntentId) {
+    private PendingIntent addPendingSMS(ScheduledSms sms, int pendingIntentId) {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         long unixTimestamp = sms.timestamp;
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         return prefs.getString(SCHEDULEDSMS, null) != null;
     }
 
-    private void createList() {
+    public void createList() {
         ListView smsList = (ListView) findViewById(R.id.plannedSmsList);
         rowItems.clear();
 
