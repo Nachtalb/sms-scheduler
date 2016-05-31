@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         createList();
-        addTestSms();
+//        addTestSms();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -47,16 +47,29 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "Create Scheduled SMS", Snackbar.LENGTH_LONG).setAction("New", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        editSmsView();
+                        newEditSmsView();
                     }
                 }).show();
             }
         });
     }
 
-    private void editSmsView() {
+    private void newEditSmsView() {
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
         startActivity(intent);
+    }
+
+    private void updateEditSmsView(String UUID){
+        ScheduledSms sms = scheduledSms.get(UUID);
+
+        Intent intent = new Intent(getApplicationContext(), EditSms.class);
+        intent.putExtra("UUID", sms.UUID);
+
+        startActivity(intent);
+    }
+
+    private void updateSms(String UUID) {
+
     }
 
     public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
@@ -162,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
         addSms("Tobi", "+41793030111", "Tobias isch e Hobbyglobi", System.currentTimeMillis() + 3000);
         addSms("Roman", "+41796564172", "Roman isch de ruler of his class", System.currentTimeMillis() + 6000);
         addSms("Hudson", "+41786224306", "Hudson isch het e huet", System.currentTimeMillis() + 9000);
-        addSms("Robert", "+41787842039", "SMS-Test", System.currentTimeMillis() + 9000);
 
         createList();
     }

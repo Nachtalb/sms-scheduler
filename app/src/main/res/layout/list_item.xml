@@ -5,7 +5,7 @@
     android:padding="2dp" >
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/listTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -15,22 +15,22 @@
         android:textSize="20sp" />
 
     <TextView
-        android:id="@+id/timestamp"
+        android:id="@+id/listTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/title"
-        android:layout_below="@+id/title"
+        android:layout_alignLeft="@+id/listTitle"
+        android:layout_below="@+id/listTitle"
         android:text="timestamp"
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/phoneNr"
+        android:id="@+id/listPhoneNr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/title"
-        android:layout_alignBottom="@+id/title"
+        android:layout_alignBaseline="@+id/listTitle"
+        android:layout_alignBottom="@+id/listTitle"
         android:layout_alignParentRight="true"
-        android:text="phoeNr"
+        android:text="phoneNr"
         android:textSize="16sp" />
 
 </RelativeLayout>

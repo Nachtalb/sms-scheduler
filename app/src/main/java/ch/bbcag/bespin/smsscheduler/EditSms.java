@@ -50,7 +50,7 @@ public class EditSms extends AppCompatActivity {
     }
 
     private void findViewsById() {
-        phoneNr = (EditText) findViewById(R.id.phoneNr);
+        phoneNr = (EditText) findViewById(R.id.listPhoneNr);
         assert phoneNr != null;
         phoneNr.setInputType(InputType.TYPE_NULL);
 

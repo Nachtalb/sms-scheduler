@@ -60,9 +60,9 @@ public class CustomAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
 
-            holder.title = (TextView) convertView.findViewById(R.id.title);
-            holder.timestamp = (TextView) convertView.findViewById(R.id.timestamp);
-            holder.phoneNr = (TextView) convertView.findViewById(R.id.phoneNr);
+            holder.title = (TextView) convertView.findViewById(R.id.listTitle);
+            holder.timestamp = (TextView) convertView.findViewById(R.id.listTimestamp);
+            holder.phoneNr = (TextView) convertView.findViewById(R.id.listPhoneNr);
 
             holder.title.setText(row_pos.title);
             holder.phoneNr.setText(row_pos.phoneNr);
