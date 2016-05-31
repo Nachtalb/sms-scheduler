@@ -9,4 +9,95 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ch.bbcag.bespin.smsscheduler.EditSms">
 
+    <EditText
+        android:id="@+id/titel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:hint="Titel"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/phoneNr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/contactButton"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/contactButton"
+        android:ems="10"
+        android:hint="Phone Nr."
+        android:inputType="phone"
+        android:onClick="onClickContactButton" />
+
+    <ImageButton
+        android:id="@+id/contactButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/titel"
+        android:background="#00ffffff"
+        android:contentDescription="Contact Picker"
+        android:onClick="onClickContactButton"
+        android:src="@drawable/ic_contacts_black_48dp" />
+
+    <EditText
+        android:id="@+id/smsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/timePicker"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/phoneNr"
+        android:ems="10"
+        android:hint="SMS Text"
+        android:inputType="textMultiLine" />
+
+    <EditText
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/timePicker"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/timePicker"
+        android:ems="10"
+        android:hint="Time"
+        android:inputType="time"
+        android:onClick="onClickTimeButton" />
+
+    <ImageButton
+        android:id="@+id/timePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/datePicker"
+        android:layout_alignParentEnd="true"
+        android:background="#00ffffff"
+        android:contentDescription="Time Picker"
+        android:onClick="onClickTimeButton"
+        android:src="@drawable/ic_schedule_black_48dp" />
+
+    <EditText
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/datePicker"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/datePicker"
+        android:ems="10"
+        android:hint="Date"
+        android:inputType="date"
+        android:onClick="onClickDateButton" />
+
+    <ImageButton
+        android:id="@+id/datePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:background="#00ffffff"
+        android:contentDescription="Date Picker"
+        android:onClick="onClickDateButton"
+        android:src="@drawable/ic_today_black_48dp" />
+
 </RelativeLayout>
