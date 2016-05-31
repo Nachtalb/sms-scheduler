@@ -22,10 +22,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
 
-public class EditSms extends AppCompatActivity {
+public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
     private static final int PICK_CONTACT = 1;
 
@@ -53,6 +51,17 @@ public class EditSms extends AppCompatActivity {
         findViewsById();
         timeDialog();
         dateDialog();
+
+        setOnClickListener();
+    }
+
+    private void setOnClickListener() {
+        phoneNr.setOnClickListener(this);
+        findViewById(R.id.contactButton).setOnClickListener(this);
+        time.setOnClickListener(this);
+        findViewById(R.id.timePicker).setOnClickListener(this);
+        date.setOnClickListener(this);
+        findViewById(R.id.datePicker).setOnClickListener(this);
     }
 
     private void findViewsById() {
@@ -172,16 +181,34 @@ public class EditSms extends AppCompatActivity {
         mainActivity.cancelSms(UUID);
     }
 
+/*
     public void onClickContactButton(View view) {
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(intent, PICK_CONTACT);
     }
+*/
 
+/*
     public void onClickTimeButton(View view) {
         timePickerDialog.show();
     }
+*/
 
+/*
     public void onClickDateButton(View view) {
         datePickerDialog.show();
+    }
+*/
+
+    @Override
+    public void onClick(View v) {
+        if (v == phoneNr || v == findViewById(R.id.contactButton)) {
+            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            startActivityForResult(intent, PICK_CONTACT);
+        } else if (v == time || v == findViewById(R.id.timePicker)) {
+            timePickerDialog.show();
+        } else if (v == date || v == findViewById(R.id.datePicker)) {
+            datePickerDialog.show();
+        }
     }
 }
