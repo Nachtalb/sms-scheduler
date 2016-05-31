@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -26,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
 
     public SharedPreferences prefs;
 
-    private static final String TAG = "ApplicationStart";
     private static final String PENDINGINTENTID = "pendingIntentId";
     private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
     static final int ADD_REQUEST = 0;
@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         String smsText;
         String UUID;
         long timestamp;
+
         switch (reqCode) {
             case ADD_REQUEST:
                 title = data.getStringExtra("title");
@@ -87,26 +88,32 @@ public class MainActivity extends AppCompatActivity {
                 smsText = data.getStringExtra("smsText");
                 timestamp = data.getLongExtra("timestamp", 0);
                 if (timestamp == 0) {
-                    Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "There was an error while adding new sms, please try again", Toast.LENGTH_SHORT).show();
                 } else {
                     addSms(title, phoneNr, smsText, timestamp);
                 }
                 break;
             case UPDATE_REQUEST:
-                title = data.getStringExtra("title");
-                phoneNr = data.getStringExtra("phoneNr");
-                smsText = data.getStringExtra("smsText");
-                timestamp = data.getLongExtra("timestamp", 0);
-                UUID = data.getStringExtra("UUID");
-                if (timestamp == 0) {
-                    Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+
+                if (data.getStringExtra("delete") != null) {
+                    cancelSms(data.getStringExtra("UUID"));
                 } else {
-                    updateSms(title, phoneNr, smsText, timestamp, UUID);
+                    title = data.getStringExtra("title");
+                    phoneNr = data.getStringExtra("phoneNr");
+                    smsText = data.getStringExtra("smsText");
+                    timestamp = data.getLongExtra("timestamp", 0);
+                    UUID = data.getStringExtra("UUID");
+                    if (timestamp == 0) {
+                        Toast.makeText(this, "There was an error while updating sms, please try again", Toast.LENGTH_SHORT).show();
+                    } else {
+                        updateSms(title, phoneNr, smsText, timestamp, UUID);
+                    }
                 }
                 break;
-            case DELETE_REQUEST:
-                cancelSms(data.getStringExtra("UUID"));
+            default:
+                Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     private void updateSms(String title, String phoneNr, String smsText, long timestamp, String uuid) {
@@ -159,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void cancelSms(String UUID) {
-
         PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this, scheduledSms.get(UUID).pendingIntentId);
 
         pendingIntent.cancel();
@@ -179,13 +185,6 @@ public class MainActivity extends AppCompatActivity {
 
         AdapterView.OnItemClickListener mListClickedHandler = new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-/*
-                Intent intent = new Intent(getApplicationContext(), EditSms.class);
-                String selected = parent.getItemAtPosition(position).toString();
-
-                intent.putExtra("name", selected);
-                startActivity(intent);
-*/
                 updateEditSmsView(rowItems.get(position).UUID);
             }
         };

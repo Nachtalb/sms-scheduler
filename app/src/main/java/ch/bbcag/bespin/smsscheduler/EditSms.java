@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -40,13 +41,9 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     private SimpleDateFormat dateFormatter;
     private SimpleDateFormat timeFormatter;
 
-    private MainActivity mainActivity;
-
     private Calendar newDate;
 
     private Boolean Update = false;
-
-    private static final String TAG = "EditSMS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +53,15 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         Intent i = getIntent();
         if (i.getStringExtra("UUID") != null) {
             Update = true;
+
+            fillFields(i);
         }
 
         setOnClickListener();
 
         newDate = Calendar.getInstance();
-        timeFormatter = new SimpleDateFormat("HH:mm");
-        dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+        timeFormatter = new SimpleDateFormat("HH:mm", Locale.GERMAN);
+        dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN);
 
         if (i.getLongExtra("timestamp", 0) != 0)
             newDate.setTimeInMillis(i.getLongExtra("timestamp", Calendar.getInstance().getTimeInMillis()));
@@ -76,6 +75,12 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         initDateDialog();
 
         setOnClickListener();
+    }
+
+    private void fillFields(Intent i) {
+        titleEditText.setText(i.getStringExtra("title"));
+        phoneNrEditText.setText(i.getStringExtra("phoneNr"));
+        smsTextEditText.setText(i.getStringExtra("smsText"));
     }
 
     private void setOnClickListener() {
@@ -235,6 +240,7 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     private void deleteSms() {
         Intent returnIntent = new Intent();
         returnIntent.putExtra("UUID", getIntent().getStringExtra("UUID"));
+        returnIntent.putExtra("delete", "delete");
 
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
