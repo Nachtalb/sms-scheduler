@@ -54,7 +54,7 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         setContentView(R.layout.activity_edit_sms);
         findViewsById();
         Intent i = getIntent();
-        if (i.getExtras().containsKey("UUID")) {
+        if (i.getStringExtra("UUID") != null) {
             Update = true;
         }
 
@@ -64,7 +64,7 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         timeFormatter = new SimpleDateFormat("HH:mm");
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 
-        if (i.getExtras().containsKey("timestamp"))
+        if (i.getLongExtra("timestamp", 0) != 0)
             newDate.setTimeInMillis(i.getLongExtra("timestamp", Calendar.getInstance().getTimeInMillis()));
         else
             newDate.setTimeInMillis(System.currentTimeMillis());
