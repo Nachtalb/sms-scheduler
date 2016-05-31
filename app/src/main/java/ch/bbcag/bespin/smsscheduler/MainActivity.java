@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -49,12 +48,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        createList();
+    }
+
     private void newEditSmsView() {
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
+        intent.putExtra("timestamp", 1485932426439L);
         startActivity(intent);
     }
 
-    private void updateEditSmsView(String UUID){
+    private void updateEditSmsView(String UUID) {
         ScheduledSms sms = scheduledSms.get(UUID);
 
         Intent intent = new Intent(getApplicationContext(), EditSms.class);

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
@@ -40,28 +42,30 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     private SimpleDateFormat timeFormatter;
     private MainActivity mainActivity;
 
+    private Calendar newDate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_sms);
+        findViewsById();
+        setOnClickListener();
 
+        newDate = Calendar.getInstance();
         timeFormatter = new SimpleDateFormat("HH:mm");
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 
-        findViewsById();
+        Intent i = getIntent();
+        if (i != null && i.getLongExtra("timestamp", -1) != -1) {
+            newDate.setTimeInMillis(i.getLongExtra("timestamp", Calendar.getInstance().getTimeInMillis()));
+            time.setText(timeFormatter.format(newDate.getTime()));
+            date.setText(dateFormatter.format(newDate.getTime()));
+        }
+
+        Log.v("example", "Timestamp = " + newDate.getTimeInMillis());
+
         timeDialog();
         dateDialog();
-
-        setOnClickListener();
-    }
-
-    private void setOnClickListener() {
-        phoneNr.setOnClickListener(this);
-        findViewById(R.id.contactButton).setOnClickListener(this);
-        time.setOnClickListener(this);
-        findViewById(R.id.timePicker).setOnClickListener(this);
-        date.setOnClickListener(this);
-        findViewById(R.id.datePicker).setOnClickListener(this);
     }
 
     private void findViewsById() {
@@ -80,6 +84,15 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         date = (EditText) findViewById(R.id.date);
         assert date != null;
         date.setInputType(InputType.TYPE_NULL);
+    }
+
+    private void setOnClickListener() {
+        phoneNr.setOnClickListener(this);
+        findViewById(R.id.contactButton).setOnClickListener(this);
+        time.setOnClickListener(this);
+        findViewById(R.id.timePicker).setOnClickListener(this);
+        date.setOnClickListener(this);
+        findViewById(R.id.datePicker).setOnClickListener(this);
     }
 
     @Override
@@ -111,26 +124,27 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void timeDialog() {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = newDate;
         timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                Calendar newTime = Calendar.getInstance();
-                newTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                newTime.set(Calendar.MINUTE, minute);
-                time.setText(timeFormatter.format(newTime.getTime()));
+                newDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                newDate.set(Calendar.MINUTE, minute);
+                time.setText(timeFormatter.format(newDate.getTime()));
+                Log.v("example", "Timestamp = " + newDate.getTimeInMillis());
             }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
     }
 
+
     private void dateDialog() {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = newDate;
         datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
                 date.setText(dateFormatter.format(newDate.getTime()));
+                Log.v("example", "Timestamp = " + newDate.getTimeInMillis());
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
     }
@@ -167,13 +181,7 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void saveSms() throws ParseException {
-        String timeStampString = date.toString() + " " + time.toString();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        Date date = sdf.parse(timeStampString);
-        long timeInMillisSinceEpoch = date.getTime();
-
-        mainActivity.addSms(title.toString(), phoneNr.toString(), smsText.toString(), timeInMillisSinceEpoch);
+        mainActivity.addSms(title.toString(), phoneNr.toString(), smsText.toString(), newDate.getTimeInMillis());
         mainActivity.createList();
     }
 
