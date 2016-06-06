@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
 public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
