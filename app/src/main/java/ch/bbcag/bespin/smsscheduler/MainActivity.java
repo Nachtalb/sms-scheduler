@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -119,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(reqCode, resultCode, data);
 
         if (data != null) {
-
             String title;
             String phoneNr;
             String smsText;
@@ -135,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                     phoneNr = data.getStringExtra("phoneNr");
                     smsText = data.getStringExtra("smsText");
                     timestamp = data.getLongExtra("timestamp", 0);
+
                     if (timestamp == 0) {
                         Toast.makeText(this, "There was an error while adding new sms, please try again", Toast.LENGTH_SHORT).show();
                     } else {
@@ -143,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case UPDATE_REQUEST:
-
                     if (data.getStringExtra("delete") != null) {
                         deleteSms(data.getStringExtra("UUID"));
                     } else {
@@ -152,8 +150,6 @@ public class MainActivity extends AppCompatActivity {
                         smsText = data.getStringExtra("smsText");
                         timestamp = data.getLongExtra("timestamp", 0);
                         UUID = data.getStringExtra("UUID");
-
-                        Log.i("TEST", title + " | " + phoneNr + " | " + smsText + " | " + timestamp + " | " + UUID);
 
                         if (timestamp == 0) {
                             Toast.makeText(this, "There was an error while updating sms, please try again", Toast.LENGTH_SHORT).show();
@@ -166,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     /**
@@ -180,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateSms(String title, String phoneNr, String smsText, long timestamp, String uuid) {
         deleteSms(uuid);
-
         addSms(title, phoneNr, smsText, timestamp);
+
         Snackbar.make(getCurrentFocus(), title + " updated", Snackbar.LENGTH_LONG).show();
     }
 
@@ -195,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
         int pendingIntentId = getNewPendingIntentId();
-
         ScheduledSms newSms = new ScheduledSms(title, phoneNr, smsText, unixTimestamp, UUID.randomUUID().toString(), pendingIntentId);
 
         scheduledSms.put(newSms.UUID, newSms);
@@ -217,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
         if (scheduledSms.isEmpty()) {
             editor.clear();
         } else {
-
             try {
                 editor.putInt(PENDINGINTENTID, getNewPendingIntentId());
                 editor.putString(SCHEDULEDSMS, ObjectSerializer.serialize(scheduledSms));
@@ -235,12 +228,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addPendingSMS(ScheduledSms sms) {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
         long unixTimestamp = sms.timestamp;
         PendingIntent pendingIntent = getPendingIntent(sms.UUID);
 
         manager.setExact(AlarmManager.RTC, unixTimestamp, pendingIntent);
-
     }
 
     /**
@@ -259,6 +250,8 @@ public class MainActivity extends AppCompatActivity {
      * @param UUID - UUID of the SMS
      */
     public void deleteSms(String UUID) {
+        PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this, scheduledSms.get(UUID).pendingIntentId);
+        pendingIntent.cancel();
 
         if (scheduledSms.get(UUID).timestamp >= System.currentTimeMillis()) {
             PendingIntent pendingIntent = getPendingIntent(UUID);
@@ -302,21 +295,17 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             if (!scheduledSms.isEmpty()) {
                 for (Map.Entry<String, ScheduledSms> sms : scheduledSms.entrySet()) {
                     RowItem item = new RowItem(sms.getValue().title, sms.getValue().phoneNr, sms.getValue().smsText, sms.getValue().timestamp, sms.getValue().UUID);
                     rowItems.add(item);
                 }
             }
-
-
             smsList.setOnItemClickListener(mListClickedHandler);
         } else {
             RowItem item = new RowItem("No scheduled items yet", "", "", 0, UUID.randomUUID().toString());
             rowItems.add(item);
         }
-
         CustomAdapter adapter = new CustomAdapter(this, rowItems);
         smsList.setAdapter(adapter);
     }

@@ -45,7 +45,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNr, null, smsText, null, null);
-
             changeTitle(UUID, context);
             notificationTitle = "SMS sent";
             notificationText = "\"" + title + "\" sent successfully!";
@@ -70,12 +69,10 @@ public class AlarmReceiver extends BroadcastReceiver {
     private void issueNotification(Context context, String notificationText, String notificationTitle, int notificationDrawable) {
         try {
             NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                     .setSmallIcon(notificationDrawable)
                     .setContentTitle("SMS-Scheduler: " + notificationTitle)
                     .setContentText(notificationText);
-
             Intent resultIntent = new Intent(context, MainActivity.class);
             PendingIntent resultPendingIntent = PendingIntent.getActivity(
                     context,

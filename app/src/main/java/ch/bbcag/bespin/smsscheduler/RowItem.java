@@ -26,7 +26,6 @@ public class RowItem {
      */
     public String UUID;
 
-
     /**
      * Instantiates a new Row item.
      *

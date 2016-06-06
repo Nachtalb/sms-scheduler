@@ -8,30 +8,30 @@
         android:id="@+id/listTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:paddingBottom="10dp"
-        android:text="title"
+        android:text="@string/list_title"
         android:textStyle="bold"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/listTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/listTitle"
+        android:text="@string/list_timestamp"
+        android:textSize="16sp"
         android:layout_below="@+id/listTitle"
-        android:text="timestamp"
-        android:textSize="16sp" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/listPhoneNr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/listTitle"
-        android:layout_alignBottom="@+id/listTitle"
-        android:layout_alignParentRight="true"
-        android:text="phoneNr"
-        android:textSize="16sp" />
+        android:text="@string/list_phonenr"
+        android:textSize="16sp"
+        android:layout_below="@+id/UUID"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"

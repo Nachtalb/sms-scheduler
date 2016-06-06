@@ -47,7 +47,6 @@ public class ObjectSerializer {
             objStream.close();
             return encodeBytes(serialObj.toByteArray());
         } catch (Exception e) {
-            //throw WrappedIOException.wrap("Serialization error: " + e.getSmsText(), e);
             throw new IOException("Serialization error: " + e.getMessage(), e);
         }
     }
@@ -66,7 +65,6 @@ public class ObjectSerializer {
             ObjectInputStream objStream = new ObjectInputStream(serialObj);
             return objStream.readObject();
         } catch (Exception e) {
-            //throw WrappedIOException.wrap(, e);
             throw new IOException("Deserialization error: " + e.getMessage(), e);
         }
     }
@@ -80,11 +78,10 @@ public class ObjectSerializer {
     public static String encodeBytes(byte[] bytes) {
         StringBuffer strBuf = new StringBuffer();
 
-        for (int i = 0; i < bytes.length; i++) {
-            strBuf.append((char) (((bytes[i] >> 4) & 0xF) + ((int) 'a')));
-            strBuf.append((char) (((bytes[i]) & 0xF) + ((int) 'a')));
+        for (byte b : bytes) {
+            strBuf.append((char) (((b >> 4) & 0xF) + ((int) 'a')));
+            strBuf.append((char) (((b) & 0xF) + ((int) 'a')));
         }
-
         return strBuf.toString();
     }
 
@@ -104,5 +101,4 @@ public class ObjectSerializer {
         }
         return bytes;
     }
-
 }
