@@ -250,9 +250,6 @@ public class MainActivity extends AppCompatActivity {
      * @param UUID - UUID of the SMS
      */
     public void deleteSms(String UUID) {
-        PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this, scheduledSms.get(UUID).pendingIntentId);
-        pendingIntent.cancel();
-
         if (scheduledSms.get(UUID).timestamp >= System.currentTimeMillis()) {
             PendingIntent pendingIntent = getPendingIntent(UUID);
             pendingIntent.cancel();
