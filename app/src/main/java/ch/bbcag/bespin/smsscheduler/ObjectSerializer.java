@@ -25,9 +25,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+/**
+ * The type Object serializer.
+ */
 public class ObjectSerializer {
 
 
+    /**
+     * Serialize string.
+     *
+     * @param obj - the obj
+     * @return - the string
+     * @throws IOException - the io exception
+     */
     public static String serialize(Serializable obj) throws IOException {
         if (obj == null) return "";
         try {
@@ -42,6 +52,13 @@ public class ObjectSerializer {
         }
     }
 
+    /**
+     * Deserialize object.
+     *
+     * @param str - the string
+     * @return - the object
+     * @throws IOException - the io exception
+     */
     public static Object deserialize(String str) throws IOException {
         if (str == null || str.length() == 0) return null;
         try {
@@ -54,6 +71,12 @@ public class ObjectSerializer {
         }
     }
 
+    /**
+     * Encode bytes string.
+     *
+     * @param bytes - the bytes
+     * @return - the string
+     */
     public static String encodeBytes(byte[] bytes) {
         StringBuffer strBuf = new StringBuffer();
 
@@ -65,6 +88,12 @@ public class ObjectSerializer {
         return strBuf.toString();
     }
 
+    /**
+     * Decode bytes byte [ ].
+     *
+     * @param str - the string
+     * @return - the byte [ ]
+     */
     public static byte[] decodeBytes(String str) {
         byte[] bytes = new byte[str.length() / 2];
         for (int i = 0; i < str.length(); i += 2) {

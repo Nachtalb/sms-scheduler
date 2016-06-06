@@ -14,10 +14,21 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * The Alarm receiver for sending Messages
+ */
 public class AlarmReceiver extends BroadcastReceiver {
-
+    /**
+     * The String under which the scheduled SMSs will be saved in the shred preferences
+     */
     private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
 
+    /**
+     * This method is called when the BroadcastReceiver is receiving an Intent broadcast.
+     *
+     * @param context - The Context in which the receiver is running.
+     * @param intent  - The Intent being received.
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         String title = intent.getExtras().getString("title");
@@ -48,7 +59,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         issueNotification(context, notificationText, notificationTitle, notificationDrawable);
     }
 
-    private boolean issueNotification(Context context, String notificationText, String notificationTitle, int notificationDrawable) {
+    /**
+     * Issues a Notification
+     *
+     * @param context              - The Context to access application-specific resources and classes.
+     * @param notificationText     - The Notification Text
+     * @param notificationTitle    - The Notification Title
+     * @param notificationDrawable - The Notification Icon
+     */
+    private void issueNotification(Context context, String notificationText, String notificationTitle, int notificationDrawable) {
         try {
             NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -69,13 +88,17 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             int mNotificationId = (int) System.currentTimeMillis();
             mNotifyMgr.notify(mNotificationId, mBuilder.build());
-            return true;
         } catch (Exception e) {
-            return false;
+            System.err.println("Caught Exception: " + e.getMessage());
         }
-
     }
 
+    /**
+     * Adds "(sent)" to the title of an SMS
+     *
+     * @param UUID    - The UUID of the SMS
+     * @param context - The Context to access application-specific resources and classes.
+     */
     private void changeTitle(String UUID, Context context) {
         HashMap<String, ScheduledSms> scheduledSms;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

@@ -21,16 +21,48 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Main activity. Where everything starts.
+ */
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * The request code supplied in the startActivityForResult for an add request
+     */
     static final int ADD_REQUEST = 0;
+    /**
+     * The request code supplied in the startActivityForResult for an update request
+     */
     static final int UPDATE_REQUEST = 1;
-    private static final String PENDINGINTENTID = "pendingIntentId";
+    /**
+     * The String under which the newest PendingIntent ID will be saved. This is to prevent giving
+     * the PendingIntents same IDs
+     */
+    private static final String PENDINGINTENTID = "ch.bbcag.bespin.smsscheduler.pendingIntentId";
+    /**
+     * The String under which the scheduled SMSs will be saved in the shred preferences
+     */
     private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
+    /**
+     * A HashMap with all scheduled SMSs
+     */
+    public static HashMap<String, ScheduledSms> scheduledSms = new HashMap<>();
+    /**
+     * SharedPreferences variable which will be used in the whole project.
+     */
     public SharedPreferences prefs;
-    private HashMap<String, ScheduledSms> scheduledSms = new HashMap<>();
+    /**
+     * An ArrayList with all list Items for the MainActivity
+     */
     private ArrayList<RowItem> rowItems = new ArrayList<>();
 
+    /**
+     * Perform initialization of all fragments and loaders.
+     *
+     * @param savedInstanceState - If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in onSaveInstanceState. Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,23 +70,31 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        createList();
+        reloadList();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                newEditSmsView();
+                newEditSmsActivity();
             }
         });
     }
 
-    private void newEditSmsView() {
+    /**
+     * Loads the EditSms Activity
+     */
+    private void newEditSmsActivity() {
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
         startActivityForResult(intent, ADD_REQUEST);
     }
 
-    private void updateEditSmsView(String UUID) {
+    /**
+     * Loads the Update SMS Activity
+     *
+     * @param UUID - UUID of the SMS
+     */
+    private void updateEditSmsActivity(String UUID) {
         ScheduledSms sms = scheduledSms.get(UUID);
 
         Intent intent = new Intent(getApplicationContext(), EditSms.class);
@@ -67,6 +107,13 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, UPDATE_REQUEST);
     }
 
+    /**
+     * Dispatch incoming result to the correct fragment.
+     *
+     * @param reqCode    - The integer request code originally supplied to startActivityForResult(), allowing you to identify who this result came from.
+     * @param resultCode - The integer result code returned by the child activity through its setResult().
+     * @param data       - An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
+     */
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
@@ -81,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
 
             switch (reqCode) {
                 case ADD_REQUEST:
+                    if (data.getStringExtra("delete") != null) {
+                        Toast.makeText(this, "Adding SMS canceled.", Toast.LENGTH_LONG);
+                    }
                     title = data.getStringExtra("title");
                     phoneNr = data.getStringExtra("phoneNr");
                     smsText = data.getStringExtra("smsText");
@@ -119,6 +169,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Updates an existing SMS
+     *
+     * @param title     - New Title
+     * @param phoneNr   - New PhoneNumber
+     * @param smsText   - new SMS Text
+     * @param timestamp - New Time as UnixTimestamp
+     * @param uuid      - The UUID of the existing SMS
+     */
     private void updateSms(String title, String phoneNr, String smsText, long timestamp, String uuid) {
         deleteSms(uuid);
 
@@ -126,6 +185,14 @@ public class MainActivity extends AppCompatActivity {
         Snackbar.make(getCurrentFocus(), title + " updated", Snackbar.LENGTH_LONG).show();
     }
 
+    /**
+     * Adds a SMS to the SMS List and reloads the MainActivity List
+     *
+     * @param title         - Title of the new SMS
+     * @param phoneNr       - PhoneNumber of the new SMS
+     * @param smsText       - Text of the SMS
+     * @param unixTimestamp - Unix Timestamp
+     */
     public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
         int pendingIntentId = getNewPendingIntentId();
 
@@ -133,14 +200,16 @@ public class MainActivity extends AppCompatActivity {
 
         scheduledSms.put(newSms.UUID, newSms);
 
+        if (newSms.timestamp >= System.currentTimeMillis())
+            addPendingSMS(newSms);
 
-        addPendingSMS(newSms, pendingIntentId);
-
-        //save the task list to preference
         updateSharedPreferences();
-        createList();
+        reloadList();
     }
 
+    /**
+     * Updates the shared preferences with the scheduledSms Hash Array
+     */
     private void updateSharedPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
@@ -159,51 +228,71 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private PendingIntent addPendingSMS(ScheduledSms sms, int pendingIntentId) {
+    /**
+     * Lets the PendingIntent create ands associates it with the AlarmManager
+     *
+     * @param sms - ScheduledSms
+     */
+    private void addPendingSMS(ScheduledSms sms) {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         long unixTimestamp = sms.timestamp;
-        PendingIntent pendingIntent = sms.getPendingIntent(this, pendingIntentId);
+        PendingIntent pendingIntent = getPendingIntent(sms.UUID);
 
         manager.setExact(AlarmManager.RTC, unixTimestamp, pendingIntent);
 
-        return pendingIntent;
     }
 
-    public int getPendingIntentIdCount() {
-        return prefs.getInt(PENDINGINTENTID, -1);
-    }
-
+    /**
+     * Gets the PendingIntent ID for the next sms
+     *
+     * @return - The new PendingIntent ID
+     */
     public int getNewPendingIntentId() {
-        int id = getPendingIntentIdCount();
+        int id = prefs.getInt(PENDINGINTENTID, -1);
         return (id == -1) ? 0 : id + 1;
     }
 
+    /**
+     * Deletes an SMS from shared preferences and removes the PendingIntent
+     *
+     * @param UUID - UUID of the SMS
+     */
     public void deleteSms(String UUID) {
 
-        PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this, scheduledSms.get(UUID).pendingIntentId);
-        pendingIntent.cancel();
+        if (scheduledSms.get(UUID).timestamp >= System.currentTimeMillis()) {
+            PendingIntent pendingIntent = getPendingIntent(UUID);
+            pendingIntent.cancel();
+        }
 
         String title = scheduledSms.get(UUID).title;
         scheduledSms.remove(UUID);
 
         updateSharedPreferences();
-        createList();
+        reloadList();
 
         Snackbar.make(getCurrentFocus(), title + " deleted", Snackbar.LENGTH_SHORT).show();
     }
 
+    /**
+     * Checks if the Shared Preferences contains some scheduled SMS or not
+     *
+     * @return - True or False
+     */
     public boolean checkIfHasEntries() {
         return prefs.getString(SCHEDULEDSMS, null) != null;
     }
 
-    public void createList() {
+    /**
+     * Reloads the list in the MainActivityView
+     */
+    public void reloadList() {
         ListView smsList = (ListView) findViewById(R.id.plannedSmsList);
         rowItems.clear();
 
         AdapterView.OnItemClickListener mListClickedHandler = new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView parent, View v, int position, long id) {
-                updateEditSmsView(rowItems.get(position).UUID);
+                updateEditSmsActivity(rowItems.get(position).UUID);
             }
         };
 
@@ -230,5 +319,32 @@ public class MainActivity extends AppCompatActivity {
 
         CustomAdapter adapter = new CustomAdapter(this, rowItems);
         smsList.setAdapter(adapter);
+    }
+
+    /**
+     * Returns the new PendingIntent for the SMS
+     *
+     * @param UUID - UUID of the SMS
+     * @return - PendingIntent of the SMS
+     */
+    public PendingIntent getPendingIntent(String UUID) {
+
+        PendingIntent pendingIntent;
+
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+
+        alarmIntent.putExtra("title", scheduledSms.get(UUID).title);
+        alarmIntent.putExtra("phoneNr", scheduledSms.get(UUID).phoneNr);
+        alarmIntent.putExtra("smsText", scheduledSms.get(UUID).smsText);
+        alarmIntent.putExtra("UUID", UUID);
+
+        pendingIntent = PendingIntent.getBroadcast(
+                this,
+                scheduledSms.get(UUID).pendingIntentId,
+                alarmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        return pendingIntent;
     }
 }

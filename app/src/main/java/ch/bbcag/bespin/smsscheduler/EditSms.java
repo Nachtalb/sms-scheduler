@@ -24,27 +24,72 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
+/**
+ * The type Edit sms.
+ */
 public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
+    /**
+     * The request code supplied in the startActivityForResult for an contact request
+     */
     private static final int PICK_CONTACT = 1;
 
+    /**
+     * EditText of the title
+     */
     private EditText titleEditText;
+    /**
+     * EditText of the phonenumber
+     */
     private EditText phoneNrEditText;
+    /**
+     * EditText oth the SMS text
+     */
     private EditText smsTextEditText;
+    /**
+     * EditText of the time
+     */
     private EditText timeEditText;
+    /**
+     * EditText of the date
+     */
     private EditText dateEditText;
 
+    /**
+     * DatePickerDialog
+     */
     private DatePickerDialog datePickerDialog;
+    /**
+     * TimePickerDialog
+     */
     private TimePickerDialog timePickerDialog;
+    /**
+     * SimpleDateFormat for he date
+     */
     private SimpleDateFormat dateFormatter;
+    /**
+     * SimpleDateFormat for the time
+     */
     private SimpleDateFormat timeFormatter;
 
+    /**
+     * Calender in which the time and date are temporary saved
+     */
     private Calendar newDate;
 
+    /**
+     * This will be set to true, if the momentaneous request of this Activity is, to update and entry
+     */
     private Boolean Update = false;
 
+    /**
+     * Perform initialization of all fragments and loaders.
+     *
+     * @param savedInstanceState - If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in onSaveInstanceState. Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +101,6 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
             fillFields(i);
         }
-
-        setOnClickListener();
 
         newDate = Calendar.getInstance();
         timeFormatter = new SimpleDateFormat("HH:mm", Locale.GERMAN);
@@ -77,12 +120,20 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         setOnClickListener();
     }
 
+    /**
+     * Fills the EditText fields if with the given data
+     *
+     * @param i - The data will be saved as Extras in the used Intent.
+     */
     private void fillFields(Intent i) {
         titleEditText.setText(i.getStringExtra("title"));
         phoneNrEditText.setText(i.getStringExtra("phoneNr"));
         smsTextEditText.setText(i.getStringExtra("smsText"));
     }
 
+    /**
+     * Adds the different OnClickListener
+     */
     private void setOnClickListener() {
         phoneNrEditText.setOnClickListener(this);
         findViewById(R.id.contactButton).setOnClickListener(this);
@@ -92,6 +143,9 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         findViewById(R.id.datePicker).setOnClickListener(this);
     }
 
+    /**
+     * Sets the values of the different EditText variables
+     */
     private void findViewsById() {
         titleEditText = (EditText) findViewById(R.id.titel);
 
@@ -110,6 +164,13 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         dateEditText.setInputType(InputType.TYPE_NULL);
     }
 
+    /**
+     * Dispatch incoming result to the correct fragment.
+     *
+     * @param reqCode    - The integer request code originally supplied to startActivityForResult(), allowing you to identify who this result came from.
+     * @param resultCode - The integer result code returned by the child activity through its setResult().
+     * @param data       - An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
+     */
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
@@ -135,6 +196,9 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Initialises the TimePicker Dialog
+     */
     private void initTimeDialog() {
         Calendar calendar = newDate;
         timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
@@ -148,6 +212,9 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
     }
 
+    /**
+     * Initialises the DatePicker Dialog
+     */
     private void initDateDialog() {
         Calendar calendar = newDate;
         datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
@@ -161,13 +228,24 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     }
 
 
+    /**
+     * Inflate the menu; this adds items to the action bar if it is present.
+     *
+     * @param menu - The menu which should be added
+     * @return - True or False if everything worked
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_edit_sms, menu);
         return true;
     }
 
+    /**
+     * Listener for the selection in the toolbar menu
+     *
+     * @param item - The clicked Item
+     * @return - True or False if everything worked
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -194,8 +272,12 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Handles the save action
+     *
+     * @throws ParseException
+     */
     private void saveSms() throws ParseException {
-
         String title = titleEditText.getText().toString();
         String phoneNr = phoneNrEditText.getText().toString();
         String smsText = smsTextEditText.getText().toString();
@@ -215,9 +297,12 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Handles the update action
+     *
+     * @throws ParseException
+     */
     private void updateSms() throws ParseException {
-
-
         String title = titleEditText.getText().toString();
         String phoneNr = phoneNrEditText.getText().toString();
         String smsText = smsTextEditText.getText().toString();
@@ -238,6 +323,9 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Handles the delete action
+     */
     private void deleteSms() {
         Intent returnIntent = new Intent();
         returnIntent.putExtra("UUID", getIntent().getStringExtra("UUID"));
@@ -247,6 +335,11 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         finish();
     }
 
+    /**
+     * Sets the onclick function for the time and datepicker
+     *
+     * @param v - View in which the pickers will be showed
+     */
     @Override
     public void onClick(View v) {
         if (v == phoneNrEditText || v == findViewById(R.id.contactButton)) {
