@@ -13,8 +13,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         String title = intent.getExtras().getString("title");
         String phoneNr = intent.getExtras().getString("phoneNr");
         String smsText = intent.getExtras().getString("smsText");
-
-
+        String UUID = intent.getExtras().getString("UUID");
 
         // For our recurring task, we'll just display a message
         Toast.makeText(context, "ScheduleSending SMS: " + title, Toast.LENGTH_SHORT).show();
