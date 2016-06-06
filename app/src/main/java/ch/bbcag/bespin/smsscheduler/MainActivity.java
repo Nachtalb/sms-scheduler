@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
     static final int ADD_REQUEST = 0;
     static final int UPDATE_REQUEST = 1;
-    static final int DELETE_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         createList();
-//        if (scheduledSms.isEmpty())
-//            addTestSms();
+        if (scheduledSms.isEmpty())
+            addTestSms();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -92,13 +92,14 @@ public class MainActivity extends AppCompatActivity {
                     if (timestamp == 0) {
                         Toast.makeText(this, "There was an error while adding new sms, please try again", Toast.LENGTH_SHORT).show();
                     } else {
+                        Snackbar.make(getCurrentFocus(), title + " added.", Snackbar.LENGTH_LONG).show();
                         addSms(title, phoneNr, smsText, timestamp);
                     }
                     break;
                 case UPDATE_REQUEST:
 
                     if (data.getStringExtra("delete") != null) {
-                        cancelSms(data.getStringExtra("UUID"));
+                        deleteSms(data.getStringExtra("UUID"));
                     } else {
                         title = data.getStringExtra("title");
                         phoneNr = data.getStringExtra("phoneNr");
@@ -123,9 +124,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSms(String title, String phoneNr, String smsText, long timestamp, String uuid) {
-        cancelSms(uuid);
+        deleteSms(uuid);
 
         addSms(title, phoneNr, smsText, timestamp);
+        Snackbar.make(getCurrentFocus(), title + " updated", Snackbar.LENGTH_LONG).show();
     }
 
     public void addSms(String title, String phoneNr, String smsText, long unixTimestamp) {
@@ -146,13 +148,20 @@ public class MainActivity extends AppCompatActivity {
     private void updateSharedPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
-        for (ScheduledSms sms : scheduledSms.values()) {
-            editor.putInt(PENDINGINTENTID, sms.pendingIntentId);
-        }
-        try {
-            editor.putString(SCHEDULEDSMS, ObjectSerializer.serialize(scheduledSms));
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        if (scheduledSms.isEmpty()) {
+            editor.clear();
+        } else {
+
+            try {
+                for (ScheduledSms sms : scheduledSms.values()) {
+                    editor.putInt(PENDINGINTENTID, sms.pendingIntentId);
+                }
+
+                editor.putString(SCHEDULEDSMS, ObjectSerializer.serialize(scheduledSms));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         editor.apply();
     }
@@ -177,15 +186,18 @@ public class MainActivity extends AppCompatActivity {
         return (id == -1) ? 0 : id + 1;
     }
 
-    public void cancelSms(String UUID) {
+    public void deleteSms(String UUID) {
 
         PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this, scheduledSms.get(UUID).pendingIntentId);
-
         pendingIntent.cancel();
 
+        String title = scheduledSms.get(UUID).title;
         scheduledSms.remove(UUID);
+
         updateSharedPreferences();
         createList();
+
+        Snackbar.make(getCurrentFocus(), title + " deleted", Snackbar.LENGTH_SHORT).show();
     }
 
     public boolean checkIfHasEntries() {
