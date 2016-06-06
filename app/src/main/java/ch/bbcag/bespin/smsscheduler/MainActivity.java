@@ -23,15 +23,13 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private HashMap<String, ScheduledSms> scheduledSms = new HashMap<>();
-    private ArrayList<RowItem> rowItems = new ArrayList<>();
-
-    public SharedPreferences prefs;
-
-    private static final String PENDINGINTENTID = "pendingIntentId";
-    private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
     static final int ADD_REQUEST = 0;
     static final int UPDATE_REQUEST = 1;
+    private static final String PENDINGINTENTID = "pendingIntentId";
+    private static final String SCHEDULEDSMS = "ch.bbcag.bespin.smsscheduler.sheduledSms";
+    public SharedPreferences prefs;
+    private HashMap<String, ScheduledSms> scheduledSms = new HashMap<>();
+    private ArrayList<RowItem> rowItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,10 +152,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
 
             try {
-                for (ScheduledSms sms : scheduledSms.values()) {
-                    editor.putInt(PENDINGINTENTID, sms.pendingIntentId);
-                }
-
+                editor.putInt(PENDINGINTENTID, getNewPendingIntentId());
                 editor.putString(SCHEDULEDSMS, ObjectSerializer.serialize(scheduledSms));
             } catch (Exception e) {
                 e.printStackTrace();

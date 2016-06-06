@@ -23,7 +23,9 @@
         </activity>
         <activity android:name=".EditSms" />
 
-        <receiver android:name=".AlarmReceiver">
+        <receiver
+            android:name=".AlarmReceiver"
+            android:process=":remote">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
