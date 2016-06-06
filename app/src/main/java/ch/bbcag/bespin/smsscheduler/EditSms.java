@@ -49,11 +49,12 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_sms);
+
         findViewsById();
+
         Intent i = getIntent();
         if (i.getStringExtra("UUID") != null) {
             Update = true;
-
             fillFields(i);
         }
 
@@ -63,10 +64,11 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
         timeFormatter = new SimpleDateFormat("HH:mm", Locale.GERMAN);
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN);
 
-        if (i.getLongExtra("timestamp", 0) != 0)
+        if (i.getLongExtra("timestamp", 0) != 0) {
             newDate.setTimeInMillis(i.getLongExtra("timestamp", Calendar.getInstance().getTimeInMillis()));
-        else
+        } else {
             newDate.setTimeInMillis(System.currentTimeMillis());
+        }
 
         timeEditText.setText(timeFormatter.format(newDate.getTime()));
         dateEditText.setText(dateFormatter.format(newDate.getTime()));
@@ -195,7 +197,6 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void saveSms() throws ParseException {
-
         String title = titleEditText.getText().toString();
         String phoneNr = phoneNrEditText.getText().toString();
         String smsText = smsTextEditText.getText().toString();
@@ -216,8 +217,6 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void updateSms() throws ParseException {
-
-
         String title = titleEditText.getText().toString();
         String phoneNr = phoneNrEditText.getText().toString();
         String smsText = smsTextEditText.getText().toString();

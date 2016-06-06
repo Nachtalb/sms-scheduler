@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">SMS Scheduler</string>
     <string name="action_settings">Settings</string>
+
+    // Create/Edit View
+    <string name="titel">Titel</string>
+    <string name="phone_nr">Phone Nr.</string>
+    <string name="contact_picker">Contact Picker</string>
+    <string name="sms_text">SMS Text</string>
+    <string name="time">Time</string>
+    <string name="time_picker">Time Picker</string>
+    <string name="date">Date</string>
+    <string name="date_picker">Date Picker</string>
+
+    // List View
+    <string name="list_title">title</string>
+    <string name="list_timestamp">timestamp</string>
+    <string name="list_phonenr">phoneNr</string>
+
+    // Menu Bar
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
 </resources>

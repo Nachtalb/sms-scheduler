@@ -24,7 +24,6 @@ public class ScheduledSms implements Serializable {
     }
 
     public PendingIntent getPendingIntent(Context context, int pendingIntentId) {
-
         PendingIntent pendingIntent;
 
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
@@ -34,7 +33,6 @@ public class ScheduledSms implements Serializable {
         alarmIntent.putExtra("UUID", UUID);
 
         pendingIntent = PendingIntent.getBroadcast(context, pendingIntentId, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         return pendingIntent;
     }
 }

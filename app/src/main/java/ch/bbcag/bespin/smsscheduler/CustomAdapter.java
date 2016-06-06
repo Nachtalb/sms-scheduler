@@ -50,16 +50,12 @@ public class CustomAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-
         ViewHolder holder;
 
         LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-
         RowItem row_pos = rowItems.get(position);
 
         if (convertView == null && !rowItems.isEmpty()) {
-
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
 
@@ -76,13 +72,11 @@ public class CustomAdapter extends BaseAdapter {
                 String date = dateToString(new Date(row_pos.timestamp));
                 holder.timestamp.setText(date);
             }
-
             convertView.setTag(holder);
         } else {
             assert convertView != null;
             holder = (ViewHolder) convertView.getTag();
         }
-
         return convertView;
     }
 

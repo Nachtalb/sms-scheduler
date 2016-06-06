@@ -16,7 +16,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:hint="Titel"
+        android:hint="@string/titel"
         android:singleLine="true" />
 
     <EditText
@@ -27,7 +27,7 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/contactButton"
         android:ems="10"
-        android:hint="Phone Nr."
+        android:hint="@string/phone_nr"
         android:inputType="phone"
         android:focusable="false"/>
 
@@ -38,7 +38,7 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/titel"
         android:background="#00ffffff"
-        android:contentDescription="Contact Picker"
+        android:contentDescription="@string/contact_picker"
         android:src="@drawable/ic_contacts_black_48dp" />
 
     <EditText
@@ -50,7 +50,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/phoneNr"
         android:ems="10"
-        android:hint="SMS Text"
+        android:hint="@string/sms_text"
         android:inputType="textMultiLine" />
 
     <EditText
@@ -62,7 +62,7 @@
         android:layout_toStartOf="@+id/timePicker"
         android:ems="10"
         android:focusable="false"
-        android:hint="Time"
+        android:hint="@string/time"
         android:inputType="time"/>
 
     <ImageButton
@@ -72,7 +72,7 @@
         android:layout_above="@+id/datePicker"
         android:layout_alignParentEnd="true"
         android:background="#00ffffff"
-        android:contentDescription="Time Picker"
+        android:contentDescription="@string/time_picker"
         android:src="@drawable/ic_schedule_black_48dp" />
 
     <EditText
@@ -83,7 +83,7 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/datePicker"
         android:ems="10"
-        android:hint="Date"
+        android:hint="@string/date"
         android:focusable="false"
         android:inputType="date" />
 
@@ -94,7 +94,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:background="#00ffffff"
-        android:contentDescription="Date Picker"
+        android:contentDescription="@string/date_picker"
         android:src="@drawable/ic_today_black_48dp" />
 
 </RelativeLayout>
