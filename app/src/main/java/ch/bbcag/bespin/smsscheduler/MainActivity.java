@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         createList();
-        if (scheduledSms.isEmpty())
-            addTestSms();
+//        if (scheduledSms.isEmpty())
+//            addTestSms();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -75,43 +75,49 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        String title;
-        String phoneNr;
-        String smsText;
-        String UUID;
-        long timestamp;
+        if (data != null) {
 
-        switch (reqCode) {
-            case ADD_REQUEST:
-                title = data.getStringExtra("title");
-                phoneNr = data.getStringExtra("phoneNr");
-                smsText = data.getStringExtra("smsText");
-                timestamp = data.getLongExtra("timestamp", 0);
-                if (timestamp == 0) {
-                    Toast.makeText(this, "There was an error while adding new sms, please try again", Toast.LENGTH_SHORT).show();
-                } else {
-                    addSms(title, phoneNr, smsText, timestamp);
-                }
-                break;
-            case UPDATE_REQUEST:
+            String title;
+            String phoneNr;
+            String smsText;
+            String UUID;
+            long timestamp;
 
-                if (data.getStringExtra("delete") != null) {
-                    cancelSms(data.getStringExtra("UUID"));
-                } else {
+            switch (reqCode) {
+                case ADD_REQUEST:
                     title = data.getStringExtra("title");
                     phoneNr = data.getStringExtra("phoneNr");
                     smsText = data.getStringExtra("smsText");
                     timestamp = data.getLongExtra("timestamp", 0);
-                    UUID = data.getStringExtra("UUID");
                     if (timestamp == 0) {
-                        Toast.makeText(this, "There was an error while updating sms, please try again", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "There was an error while adding new sms, please try again", Toast.LENGTH_SHORT).show();
                     } else {
-                        updateSms(title, phoneNr, smsText, timestamp, UUID);
+                        addSms(title, phoneNr, smsText, timestamp);
                     }
-                }
-                break;
-            default:
-                Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+                    break;
+                case UPDATE_REQUEST:
+
+                    if (data.getStringExtra("delete") != null) {
+                        cancelSms(data.getStringExtra("UUID"));
+                    } else {
+                        title = data.getStringExtra("title");
+                        phoneNr = data.getStringExtra("phoneNr");
+                        smsText = data.getStringExtra("smsText");
+                        timestamp = data.getLongExtra("timestamp", 0);
+                        UUID = data.getStringExtra("UUID");
+
+                        Log.i("TEST", title + " | " + phoneNr + " | " + smsText + " | " + timestamp + " | " + UUID);
+
+                        if (timestamp == 0) {
+                            Toast.makeText(this, "There was an error while updating sms, please try again", Toast.LENGTH_SHORT).show();
+                        } else {
+                            updateSms(title, phoneNr, smsText, timestamp, UUID);
+                        }
+                    }
+                    break;
+                default:
+                    Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_SHORT).show();
+            }
         }
 
     }
@@ -133,16 +139,22 @@ public class MainActivity extends AppCompatActivity {
         addPendingSMS(newSms, pendingIntentId);
 
         //save the task list to preference
+        updateSharedPreferences();
+        createList();
+    }
+
+    private void updateSharedPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
+        for (ScheduledSms sms : scheduledSms.values()) {
+            editor.putInt(PENDINGINTENTID, sms.pendingIntentId);
+        }
         try {
-            editor.putInt(PENDINGINTENTID, pendingIntentId);
             editor.putString(SCHEDULEDSMS, ObjectSerializer.serialize(scheduledSms));
         } catch (Exception e) {
             e.printStackTrace();
         }
         editor.apply();
-        createList();
     }
 
     private PendingIntent addPendingSMS(ScheduledSms sms, int pendingIntentId) {
@@ -166,12 +178,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void cancelSms(String UUID) {
+
         PendingIntent pendingIntent = scheduledSms.get(UUID).getPendingIntent(this, scheduledSms.get(UUID).pendingIntentId);
 
         pendingIntent.cancel();
 
         scheduledSms.remove(UUID);
-
+        updateSharedPreferences();
         createList();
     }
 

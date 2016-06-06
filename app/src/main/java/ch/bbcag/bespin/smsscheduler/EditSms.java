@@ -217,6 +217,7 @@ public class EditSms extends AppCompatActivity implements View.OnClickListener {
 
     private void updateSms() throws ParseException {
 
+
         String title = titleEditText.getText().toString();
         String phoneNr = phoneNrEditText.getText().toString();
         String smsText = smsTextEditText.getText().toString();

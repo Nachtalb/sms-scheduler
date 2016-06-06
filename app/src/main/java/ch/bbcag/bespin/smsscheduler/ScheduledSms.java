@@ -31,6 +31,7 @@ public class ScheduledSms implements Serializable {
         alarmIntent.putExtra("title", title);
         alarmIntent.putExtra("phoneNr", phoneNr);
         alarmIntent.putExtra("smsText", smsText);
+        alarmIntent.putExtra("UUID", UUID);
 
         pendingIntent = PendingIntent.getBroadcast(context, pendingIntentId, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
