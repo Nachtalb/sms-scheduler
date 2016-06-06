@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         createList();
-        if (scheduledSms.isEmpty())
-            addTestSms();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -232,14 +230,5 @@ public class MainActivity extends AppCompatActivity {
 
         CustomAdapter adapter = new CustomAdapter(this, rowItems);
         smsList.setAdapter(adapter);
-    }
-
-
-    public void addTestSms() {
-        addSms("Tobi", "+41793030111", "Tobias isch e Hobbyglobi", System.currentTimeMillis() + 3000);
-        addSms("Roman", "+41796564172", "Roman isch de ruler of his class", System.currentTimeMillis() + 6000);
-        addSms("Hudson", "+41786224306", "Hudson isch het e huet", System.currentTimeMillis() + 9000);
-
-        createList();
     }
 }
